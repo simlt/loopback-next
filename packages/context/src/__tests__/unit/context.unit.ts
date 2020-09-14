@@ -715,8 +715,10 @@ describe('Context', () => {
       expect(request.getResolutionContext(bindingInServer)).to.equal(request);
       expect(request.getResolutionContext(bindingInApp)).to.equal(request);
 
-      expect(server.getResolutionContext(bindingInServer)).to.be.undefined();
-      expect(server.getResolutionContext(bindingInApp)).to.be.undefined();
+      // Fall back to the current context if no `request` scope exists in the
+      // chain
+      expect(server.getResolutionContext(bindingInServer)).to.equal(server);
+      expect(server.getResolutionContext(bindingInApp)).to.equal(server);
     });
 
     it('checks visibility', () => {
@@ -1079,28 +1081,27 @@ describe('Context', () => {
     ctx
       .bind('state')
       .toDynamicValue(() => {
-        state.count++;
-        return state;
+        return {count: ++state.count};
       })
       .inScope(BindingScope.REQUEST);
 
-    expect(() => ctx.getSync('state')).to.throw(
-      /Binding "state" in context "app" cannot be resolved in scope "Request"/,
-    );
+    // No `request` scope exists in the chain, fall back to the current
+    // context
+    expect(ctx.getSync('state#count')).to.equal(1);
 
     const requestCtx = new Context(ctx);
     requestCtx.scope = BindingScope.REQUEST;
 
     // retrieve a nested property from a child context
     const childContext1 = new Context(requestCtx);
-    expect(childContext1.getValueOrPromise('state#count')).to.equal(1);
+    expect(childContext1.getValueOrPromise('state#count')).to.equal(2);
 
     // retrieve a nested property from another child context
     const childContext2 = new Context(requestCtx);
-    expect(childContext2.getValueOrPromise('state#count')).to.equal(1);
+    expect(childContext2.getValueOrPromise('state#count')).to.equal(2);
 
     // retrieve the full object again (verify that cache was not modified)
-    expect(requestCtx.getSync('state')).to.deepEqual({count: 1});
+    expect(ctx.getSync('state')).to.deepEqual({count: 1});
   });
 
   describe('close()', () => {

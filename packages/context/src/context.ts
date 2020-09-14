@@ -531,6 +531,7 @@ export class Context extends EventEmitter {
   getResolutionContext(
     binding: Readonly<Binding<unknown>>,
   ): Context | undefined {
+    let resolutionCtx: Context | undefined;
     switch (binding.scope) {
       case BindingScope.SINGLETON:
         // Use the owner context
@@ -539,6 +540,20 @@ export class Context extends EventEmitter {
       case BindingScope.CONTEXT:
         // Use the current context
         return this;
+      case BindingScope.REQUEST:
+        resolutionCtx = this.getScopedContext(binding.scope);
+        if (resolutionCtx != null) {
+          return resolutionCtx;
+        } else {
+          // If no `REQUEST` scope exists in the chain, fall back to the current
+          // context
+          this.debug(
+            'No context is found for binding "%s (scope=%s)". Fall back to the current context.',
+            binding.key,
+            binding.scope,
+          );
+          return this;
+        }
       default:
         // Use the scoped context
         return this.getScopedContext(binding.scope);
