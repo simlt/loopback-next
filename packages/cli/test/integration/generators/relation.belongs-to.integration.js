@@ -20,24 +20,15 @@ const CONTROLLER_PATH = 'src/controllers';
 const REPOSITORY_APP_PATH = 'src/repositories';
 const sandbox = new TestSandbox(path.resolve(__dirname, '../.sandbox'));
 
-const sourceFileName = [
-  'order.model.ts',
-  'order-class.model.ts',
-  'order-class-type.model.ts',
-];
+const sourceFileName = ['order.model.ts', 'order-class.model.ts'];
 const controllerFileName = [
   'order-customer.controller.ts',
   'order-class-customer-class.controller.ts',
-  'order-class-type-customer-class-type.controller.ts',
 ];
-const repositoryFileName = [
-  'order.repository.ts',
-  'order-class.repository.ts',
-  'order-class-type.repository.ts',
-];
+const repositoryFileName = ['order.repository.ts', 'order-class.repository.ts'];
 
 describe('lb4 relation', /** @this {Mocha.Suite} */ function () {
-  this.timeout(50000);
+  this.timeout(30000);
 
   it("rejects relation when destination model doesn't have primary Key", async () => {
     await sandbox.reset();
@@ -154,54 +145,6 @@ describe('lb4 relation', /** @this {Mocha.Suite} */ function () {
     }
   });
 
-  context('generates model relation for existing property name', () => {
-    const promptList = [
-      {
-        relationType: 'belongsTo',
-        sourceModel: 'Order',
-        destinationModel: 'Customer',
-        foreignKeyName: 'customerId',
-      },
-      {
-        relationType: 'hasMany',
-        sourceModel: 'Customer',
-        destinationModel: 'Order',
-        foreignKeyName: 'customerId',
-        relationName: 'orders',
-      },
-    ];
-
-    it('verifies that a preexisting property will be overwritten', async () => {
-      await sandbox.reset();
-      await testUtils
-        .executeGenerator(generator)
-        .inDir(sandbox.path, () =>
-          testUtils.givenLBProject(sandbox.path, {
-            additionalFiles: SANDBOX_FILES,
-          }),
-        )
-        .withPrompts(promptList[1]);
-
-      await testUtils
-        .executeGenerator(generator)
-        .inDir(sandbox.path, () =>
-          testUtils.givenLBProject(sandbox.path, {
-            additionalFiles: SANDBOX_FILES,
-          }),
-        )
-        .withPrompts(promptList[0]);
-
-      const sourceFilePath = path.join(
-        sandbox.path,
-        MODEL_APP_PATH,
-        sourceFileName[0],
-      );
-
-      assert.file(sourceFilePath);
-      expectFileToMatchSnapshot(sourceFilePath);
-    });
-  });
-
   context('generates model relation with custom relation name', () => {
     const promptArray = [
       {
@@ -209,12 +152,6 @@ describe('lb4 relation', /** @this {Mocha.Suite} */ function () {
         sourceModel: 'Order',
         destinationModel: 'Customer',
         foreignKeyName: 'customerId',
-        relationName: 'my_customer',
-      },
-      {
-        relationType: 'belongsTo',
-        sourceModel: 'OrderClass',
-        destinationModel: 'CustomerClass',
         relationName: 'my_customer',
       },
     ];
@@ -284,15 +221,6 @@ describe('lb4 relation', /** @this {Mocha.Suite} */ function () {
           .withPrompts(multiItemPrompt);
       });
 
-      it('new controller file created', async () => {
-        const filePath = path.join(
-          sandbox.path,
-          CONTROLLER_PATH,
-          controllerFileName[i],
-        );
-        assert.file(filePath);
-      });
-
       it('checks controller content with belongsTo relation', async () => {
         const filePath = path.join(
           sandbox.path,
@@ -324,21 +252,14 @@ describe('lb4 relation', /** @this {Mocha.Suite} */ function () {
       },
       {
         relationType: 'belongsTo',
-        sourceModel: 'OrderClass',
-        destinationModel: 'CustomerClass',
-        relationName: 'customer',
-        registerInclusionResolver: true,
-      },
-      {
-        relationType: 'belongsTo',
-        sourceModel: 'OrderClassType',
-        destinationModel: 'CustomerClassType',
-        relationName: 'customer',
+        sourceModel: 'Order',
+        destinationModel: 'Customer',
+        relationName: 'custom_name',
         registerInclusionResolver: false,
       },
     ];
 
-    const sourceClassnames = ['Order', 'OrderClass', 'OrderClassType'];
+    const sourceClassnames = ['Order', 'Order'];
 
     promptArray.forEach(function (multiItemPrompt, i) {
       describe('answers ' + JSON.stringify(multiItemPrompt), () => {

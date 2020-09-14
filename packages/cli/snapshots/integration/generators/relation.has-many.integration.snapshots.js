@@ -7,6 +7,24 @@
 
 'use strict';
 
+exports[`lb4 relation HasMany checks generated source class repository answers {"relationType":"hasMany","sourceModel":"Customer","destinationModel":"Order","relationName":"custom_name","registerInclusionResolver":false} generates Customer repository file with different inputs 1`] = `
+import {DefaultCrudRepository} from '@loopback/repository';
+import {CustomerClass} from '../models';
+import {MyDBDataSource} from '../datasources';
+import {inject} from '@loopback/core';
+
+export class CustomerClassRepository extends DefaultCrudRepository<
+  CustomerClass,
+  typeof CustomerClass.prototype.custNumber
+> {
+  constructor(@inject('datasources.myDB') dataSource: MyDBDataSource) {
+    super(CustomerClass, dataSource);
+  }
+}
+
+`;
+
+
 exports[`lb4 relation HasMany checks generated source class repository answers {"relationType":"hasMany","sourceModel":"Customer","destinationModel":"Order"} generates Customer repository file with different inputs 1`] = `
 import {DefaultCrudRepository, repository, HasManyRepositoryFactory} from '@loopback/repository';
 import {Customer, Order} from '../models';
@@ -25,53 +43,6 @@ export class CustomerRepository extends DefaultCrudRepository<
     super(Customer, dataSource);
     this.orders = this.createHasManyRepositoryFactoryFor('orders', orderRepositoryGetter,);
     this.registerInclusionResolver('orders', this.orders.inclusionResolver);
-  }
-}
-
-`;
-
-
-exports[`lb4 relation HasMany checks generated source class repository answers {"relationType":"hasMany","sourceModel":"CustomerClass","destinationModel":"OrderClass","registerInclusionResolver":true} generates CustomerClass repository file with different inputs 1`] = `
-import {DefaultCrudRepository, repository, HasManyRepositoryFactory} from '@loopback/repository';
-import {CustomerClass, OrderClass} from '../models';
-import {MyDBDataSource} from '../datasources';
-import {inject, Getter} from '@loopback/core';
-import {OrderClassRepository} from './order-class.repository';
-
-export class CustomerClassRepository extends DefaultCrudRepository<
-  CustomerClass,
-  typeof CustomerClass.prototype.custNumber
-> {
-
-  public readonly orderClasses: HasManyRepositoryFactory<OrderClass, typeof CustomerClass.prototype.custNumber>;
-
-  constructor(@inject('datasources.myDB') dataSource: MyDBDataSource, @repository.getter('OrderClassRepository') protected orderClassRepositoryGetter: Getter<OrderClassRepository>,) {
-    super(CustomerClass, dataSource);
-    this.orderClasses = this.createHasManyRepositoryFactoryFor('orderClasses', orderClassRepositoryGetter,);
-    this.registerInclusionResolver('orderClasses', this.orderClasses.inclusionResolver);
-  }
-}
-
-`;
-
-
-exports[`lb4 relation HasMany checks generated source class repository answers {"relationType":"hasMany","sourceModel":"CustomerClassType","destinationModel":"OrderClassType","registerInclusionResolver":false} generates CustomerClassType repository file with different inputs 1`] = `
-import {DefaultCrudRepository, repository, HasManyRepositoryFactory} from '@loopback/repository';
-import {CustomerClassType, OrderClassType} from '../models';
-import {MyDBDataSource} from '../datasources';
-import {inject, Getter} from '@loopback/core';
-import {OrderClassTypeRepository} from './order-class-type.repository';
-
-export class CustomerClassTypeRepository extends DefaultCrudRepository<
-  CustomerClassType,
-  typeof CustomerClassType.prototype.custNumber
-> {
-
-  public readonly orderClassTypes: HasManyRepositoryFactory<OrderClassType, typeof CustomerClassType.prototype.custNumber>;
-
-  constructor(@inject('datasources.myDB') dataSource: MyDBDataSource, @repository.getter('OrderClassTypeRepository') protected orderClassTypeRepositoryGetter: Getter<OrderClassTypeRepository>,) {
-    super(CustomerClassType, dataSource);
-    this.orderClassTypes = this.createHasManyRepositoryFactoryFor('orderClassTypes', orderClassTypeRepositoryGetter,);
   }
 }
 
@@ -367,120 +338,6 @@ export class Order extends Entity {
 `;
 
 
-exports[`lb4 relation HasMany generates model relation with custom foreignKey answers {"relationType":"hasMany","sourceModel":"CustomerClass","destinationModel":"OrderClass","foreignKeyName":"mykey"} add the keyTo to the source model 1`] = `
-import {Entity, model, property, hasMany} from '@loopback/repository';
-import {OrderClass} from './order-class.model';
-
-@model()
-export class CustomerClass extends Entity {
-  @property({
-    type: 'number',
-    id: true,
-  })
-  custNumber?: number;
-
-  @property({
-    type: 'string',
-  })
-  name?: string;
-
-  @hasMany(() => OrderClass, {keyTo: 'mykey'})
-  orderClasses: OrderClass[];
-
-  constructor(data?: Partial<CustomerClass>) {
-    super(data);
-  }
-}
-
-`;
-
-
-exports[`lb4 relation HasMany generates model relation with custom foreignKey answers {"relationType":"hasMany","sourceModel":"CustomerClass","destinationModel":"OrderClass","foreignKeyName":"mykey"} add the keyTo to the source model 2`] = `
-import {Entity, model, property} from '@loopback/repository';
-
-@model()
-export class OrderClass extends Entity {
-  @property({
-    type: 'number',
-    id: true,
-  })
-  orderNumber?: number;
-
-  @property({
-    type: 'string',
-  })
-  name?: string;
-
-  @property({
-    type: 'number',
-  })
-  mykey?: number;
-
-  constructor(data?: Partial<OrderClass>) {
-    super(data);
-  }
-}
-
-`;
-
-
-exports[`lb4 relation HasMany generates model relation with custom foreignKey answers {"relationType":"hasMany","sourceModel":"CustomerClassType","destinationModel":"OrderClassType","foreignKeyName":"mykey"} add the keyTo to the source model 1`] = `
-import {Entity, model, property, hasMany} from '@loopback/repository';
-import {OrderClassType} from './order-class-type.model';
-
-@model()
-export class CustomerClassType extends Entity {
-  @property({
-    type: 'number',
-    id: true,
-  })
-  custNumber: number;
-
-  @property({
-    type: 'string',
-  })
-  name?: string;
-
-  @hasMany(() => OrderClassType, {keyTo: 'mykey'})
-  orderClassTypes: OrderClassType[];
-
-  constructor(data?: Partial<CustomerClassType>) {
-    super(data);
-  }
-}
-
-`;
-
-
-exports[`lb4 relation HasMany generates model relation with custom foreignKey answers {"relationType":"hasMany","sourceModel":"CustomerClassType","destinationModel":"OrderClassType","foreignKeyName":"mykey"} add the keyTo to the source model 2`] = `
-import {Entity, model, property} from '@loopback/repository';
-
-@model()
-export class OrderClassType extends Entity {
-  @property({
-    type: 'string',
-    id: true,
-  })
-  orderString: string;
-
-  @property({
-    type: 'string',
-  })
-  name?: string;
-
-  @property({
-    type: 'number',
-  })
-  mykey?: number;
-
-  constructor(data?: Partial<OrderClassType>) {
-    super(data);
-  }
-}
-
-`;
-
-
 exports[`lb4 relation HasMany generates model relation with custom relation name answers {"relationType":"hasMany","sourceModel":"Customer","destinationModel":"Order","relationName":"myOrders"} relation name should be myOrders 1`] = `
 import {Entity, model, property, hasMany} from '@loopback/repository';
 import {Order} from './order.model';
@@ -540,120 +397,6 @@ export class Order extends Entity {
 `;
 
 
-exports[`lb4 relation HasMany generates model relation with custom relation name answers {"relationType":"hasMany","sourceModel":"CustomerClass","destinationModel":"OrderClass","relationName":"myOrders"} relation name should be myOrders 1`] = `
-import {Entity, model, property, hasMany} from '@loopback/repository';
-import {OrderClass} from './order-class.model';
-
-@model()
-export class CustomerClass extends Entity {
-  @property({
-    type: 'number',
-    id: true,
-  })
-  custNumber?: number;
-
-  @property({
-    type: 'string',
-  })
-  name?: string;
-
-  @hasMany(() => OrderClass)
-  myOrders: OrderClass[];
-
-  constructor(data?: Partial<CustomerClass>) {
-    super(data);
-  }
-}
-
-`;
-
-
-exports[`lb4 relation HasMany generates model relation with custom relation name answers {"relationType":"hasMany","sourceModel":"CustomerClass","destinationModel":"OrderClass","relationName":"myOrders"} relation name should be myOrders 2`] = `
-import {Entity, model, property} from '@loopback/repository';
-
-@model()
-export class OrderClass extends Entity {
-  @property({
-    type: 'number',
-    id: true,
-  })
-  orderNumber?: number;
-
-  @property({
-    type: 'string',
-  })
-  name?: string;
-
-  @property({
-    type: 'number',
-  })
-  customerClassId?: number;
-
-  constructor(data?: Partial<OrderClass>) {
-    super(data);
-  }
-}
-
-`;
-
-
-exports[`lb4 relation HasMany generates model relation with custom relation name answers {"relationType":"hasMany","sourceModel":"CustomerClassType","destinationModel":"OrderClassType","relationName":"myOrders"} relation name should be myOrders 1`] = `
-import {Entity, model, property, hasMany} from '@loopback/repository';
-import {OrderClassType} from './order-class-type.model';
-
-@model()
-export class CustomerClassType extends Entity {
-  @property({
-    type: 'number',
-    id: true,
-  })
-  custNumber: number;
-
-  @property({
-    type: 'string',
-  })
-  name?: string;
-
-  @hasMany(() => OrderClassType)
-  myOrders: OrderClassType[];
-
-  constructor(data?: Partial<CustomerClassType>) {
-    super(data);
-  }
-}
-
-`;
-
-
-exports[`lb4 relation HasMany generates model relation with custom relation name answers {"relationType":"hasMany","sourceModel":"CustomerClassType","destinationModel":"OrderClassType","relationName":"myOrders"} relation name should be myOrders 2`] = `
-import {Entity, model, property} from '@loopback/repository';
-
-@model()
-export class OrderClassType extends Entity {
-  @property({
-    type: 'string',
-    id: true,
-  })
-  orderString: string;
-
-  @property({
-    type: 'string',
-  })
-  name?: string;
-
-  @property({
-    type: 'number',
-  })
-  customerClassTypeId?: number;
-
-  constructor(data?: Partial<OrderClassType>) {
-    super(data);
-  }
-}
-
-`;
-
-
 exports[`lb4 relation HasMany generates model relation with default values answers {"relationType":"hasMany","sourceModel":"Customer","destinationModel":"Order"} has correct default imports 1`] = `
 import {Entity, model, property, hasMany} from '@loopback/repository';
 import {Order} from './order.model';
@@ -676,62 +419,6 @@ export class Customer extends Entity {
   orders: Order[];
 
   constructor(data?: Partial<Customer>) {
-    super(data);
-  }
-}
-
-`;
-
-
-exports[`lb4 relation HasMany generates model relation with default values answers {"relationType":"hasMany","sourceModel":"CustomerClass","destinationModel":"OrderClass"} has correct default imports 1`] = `
-import {Entity, model, property, hasMany} from '@loopback/repository';
-import {OrderClass} from './order-class.model';
-
-@model()
-export class CustomerClass extends Entity {
-  @property({
-    type: 'number',
-    id: true,
-  })
-  custNumber?: number;
-
-  @property({
-    type: 'string',
-  })
-  name?: string;
-
-  @hasMany(() => OrderClass)
-  orderClasses: OrderClass[];
-
-  constructor(data?: Partial<CustomerClass>) {
-    super(data);
-  }
-}
-
-`;
-
-
-exports[`lb4 relation HasMany generates model relation with default values answers {"relationType":"hasMany","sourceModel":"CustomerClassType","destinationModel":"OrderClassType"} has correct default imports 1`] = `
-import {Entity, model, property, hasMany} from '@loopback/repository';
-import {OrderClassType} from './order-class-type.model';
-
-@model()
-export class CustomerClassType extends Entity {
-  @property({
-    type: 'number',
-    id: true,
-  })
-  custNumber: number;
-
-  @property({
-    type: 'string',
-  })
-  name?: string;
-
-  @hasMany(() => OrderClassType)
-  orderClassTypes: OrderClassType[];
-
-  constructor(data?: Partial<CustomerClassType>) {
     super(data);
   }
 }

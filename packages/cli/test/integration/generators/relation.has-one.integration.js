@@ -21,26 +21,13 @@ const REPOSITORY_APP_PATH = 'src/repositories';
 
 const sandbox = new TestSandbox(path.resolve(__dirname, '../.sandbox'));
 
-const sourceFileName = [
-  'customer.model.ts',
-  'customer-class.model.ts',
-  'customer-class-type.model.ts',
-];
-const targetFileName = [
-  'address.model.ts',
-  'address-class.model.ts',
-  'address-class-type.model.ts',
-];
+const sourceFileName = 'customer.model.ts';
+const targetFileName = 'address.model.ts';
 const controllerFileName = [
   'customer-address.controller.ts',
   'customer-class-address-class.controller.ts',
-  'customer-class-type-address-class-type.controller.ts',
 ];
-const repositoryFileName = [
-  'customer.repository.ts',
-  'customer-class.repository.ts',
-  'customer-class-type.repository.ts',
-];
+const repositoryFileName = 'customer.repository.ts';
 
 describe('lb4 relation HasOne', /** @this {Mocha.Suite} */ function () {
   this.timeout(30000);
@@ -135,16 +122,6 @@ describe('lb4 relation HasOne', /** @this {Mocha.Suite} */ function () {
         sourceModel: 'Customer',
         destinationModel: 'Address',
       },
-      {
-        relationType: 'hasOne',
-        sourceModel: 'CustomerClass',
-        destinationModel: 'AddressClass',
-      },
-      {
-        relationType: 'hasOne',
-        sourceModel: 'CustomerClassType',
-        destinationModel: 'AddressClassType',
-      },
     ];
 
     promptArray.forEach(function (multiItemPrompt, i) {
@@ -170,7 +147,7 @@ describe('lb4 relation HasOne', /** @this {Mocha.Suite} */ function () {
         const sourceFilePath = path.join(
           sandbox.path,
           MODEL_APP_PATH,
-          sourceFileName[i],
+          sourceFileName,
         );
         assert.file(sourceFilePath);
         expectFileToMatchSnapshot(sourceFilePath);
@@ -184,18 +161,6 @@ describe('lb4 relation HasOne', /** @this {Mocha.Suite} */ function () {
         relationType: 'hasOne',
         sourceModel: 'Customer',
         destinationModel: 'Address',
-        relationName: 'myAddress',
-      },
-      {
-        relationType: 'hasOne',
-        sourceModel: 'CustomerClass',
-        destinationModel: 'AddressClass',
-        relationName: 'myAddress',
-      },
-      {
-        relationType: 'hasOne',
-        sourceModel: 'CustomerClassType',
-        destinationModel: 'AddressClassType',
         relationName: 'myAddress',
       },
     ];
@@ -223,12 +188,12 @@ describe('lb4 relation HasOne', /** @this {Mocha.Suite} */ function () {
         const sourceFilePath = path.join(
           sandbox.path,
           MODEL_APP_PATH,
-          sourceFileName[i],
+          sourceFileName,
         );
         const targetFilePath = path.join(
           sandbox.path,
           MODEL_APP_PATH,
-          targetFileName[i],
+          targetFileName,
         );
 
         assert.file(sourceFilePath);
@@ -245,18 +210,6 @@ describe('lb4 relation HasOne', /** @this {Mocha.Suite} */ function () {
         relationType: 'hasOne',
         sourceModel: 'Customer',
         destinationModel: 'Address',
-        foreignKeyName: 'mykey',
-      },
-      {
-        relationType: 'hasOne',
-        sourceModel: 'CustomerClass',
-        destinationModel: 'AddressClass',
-        foreignKeyName: 'mykey',
-      },
-      {
-        relationType: 'hasOne',
-        sourceModel: 'CustomerClassType',
-        destinationModel: 'AddressClassType',
         foreignKeyName: 'mykey',
       },
     ];
@@ -284,12 +237,12 @@ describe('lb4 relation HasOne', /** @this {Mocha.Suite} */ function () {
         const sourceFilePath = path.join(
           sandbox.path,
           MODEL_APP_PATH,
-          sourceFileName[i],
+          sourceFileName,
         );
         const targetFilePath = path.join(
           sandbox.path,
           MODEL_APP_PATH,
-          targetFileName[i],
+          targetFileName,
         );
 
         assert.file(sourceFilePath);
@@ -363,19 +316,13 @@ describe('lb4 relation HasOne', /** @this {Mocha.Suite} */ function () {
       },
       {
         relationType: 'hasOne',
-        sourceModel: 'CustomerClass',
-        destinationModel: 'AddressClass',
-        registerInclusionResolver: true,
-      },
-      {
-        relationType: 'hasOne',
-        sourceModel: 'CustomerClassType',
-        destinationModel: 'AddressClassType',
+        sourceModel: 'Customer',
+        destinationModel: 'Address',
         registerInclusionResolver: false,
       },
     ];
 
-    const sourceClassnames = ['Customer', 'CustomerClass', 'CustomerClassType'];
+    const sourceClass = 'Customer';
     promptArray.forEach(function (multiItemPrompt, i) {
       describe('answers ' + JSON.stringify(multiItemPrompt), () => {
         suite(multiItemPrompt, i);
@@ -396,14 +343,12 @@ describe('lb4 relation HasOne', /** @this {Mocha.Suite} */ function () {
       });
 
       it(
-        'generates ' +
-          sourceClassnames[i] +
-          ' repository file with different inputs',
+        'generates ' + sourceClass + ' repository file with different inputs',
         async () => {
           const sourceFilePath = path.join(
             sandbox.path,
             REPOSITORY_APP_PATH,
-            repositoryFileName[i],
+            repositoryFileName,
           );
 
           expectFileToMatchSnapshot(sourceFilePath);

@@ -21,25 +21,15 @@ const REPOSITORY_APP_PATH = 'src/repositories';
 
 const sandbox = new TestSandbox(path.resolve(__dirname, '../.sandbox'));
 
-const sourceFileName = [
-  'customer.model.ts',
-  'customer-class.model.ts',
-  'customer-class-type.model.ts',
-];
-const targetFileName = [
-  'order.model.ts',
-  'order-class.model.ts',
-  'order-class-type.model.ts',
-];
+const sourceFileName = ['customer.model.ts', 'customer-class.model.ts'];
+const targetFileName = ['order.model.ts', 'order-class.model.ts'];
 const controllerFileName = [
   'customer-order.controller.ts',
   'customer-class-order-class.controller.ts',
-  'customer-class-type-order-class-type.controller.ts',
 ];
 const repositoryFileName = [
   'customer.repository.ts',
   'customer-class.repository.ts',
-  'customer-class-type.repository.ts',
 ];
 
 describe('lb4 relation HasMany', /** @this {Mocha.Suite} */ function () {
@@ -68,7 +58,7 @@ describe('lb4 relation HasMany', /** @this {Mocha.Suite} */ function () {
     );
   });
 
-  it('rejects relation when source key already exist in the model', async () => {
+  it('rejects relation when a relation getter already exists in the model', async () => {
     await sandbox.reset();
 
     const prompt = {
@@ -135,16 +125,6 @@ describe('lb4 relation HasMany', /** @this {Mocha.Suite} */ function () {
         sourceModel: 'Customer',
         destinationModel: 'Order',
       },
-      {
-        relationType: 'hasMany',
-        sourceModel: 'CustomerClass',
-        destinationModel: 'OrderClass',
-      },
-      {
-        relationType: 'hasMany',
-        sourceModel: 'CustomerClassType',
-        destinationModel: 'OrderClassType',
-      },
     ];
 
     promptArray.forEach(function (multiItemPrompt, i) {
@@ -184,18 +164,6 @@ describe('lb4 relation HasMany', /** @this {Mocha.Suite} */ function () {
         relationType: 'hasMany',
         sourceModel: 'Customer',
         destinationModel: 'Order',
-        relationName: 'myOrders',
-      },
-      {
-        relationType: 'hasMany',
-        sourceModel: 'CustomerClass',
-        destinationModel: 'OrderClass',
-        relationName: 'myOrders',
-      },
-      {
-        relationType: 'hasMany',
-        sourceModel: 'CustomerClassType',
-        destinationModel: 'OrderClassType',
         relationName: 'myOrders',
       },
     ];
@@ -245,18 +213,6 @@ describe('lb4 relation HasMany', /** @this {Mocha.Suite} */ function () {
         relationType: 'hasMany',
         sourceModel: 'Customer',
         destinationModel: 'Order',
-        foreignKeyName: 'mykey',
-      },
-      {
-        relationType: 'hasMany',
-        sourceModel: 'CustomerClass',
-        destinationModel: 'OrderClass',
-        foreignKeyName: 'mykey',
-      },
-      {
-        relationType: 'hasMany',
-        sourceModel: 'CustomerClassType',
-        destinationModel: 'OrderClassType',
         foreignKeyName: 'mykey',
       },
     ];
@@ -334,21 +290,13 @@ describe('lb4 relation HasMany', /** @this {Mocha.Suite} */ function () {
           .withPrompts(multiItemPrompt);
       });
 
-      it('new controller file has been created', async () => {
-        const filePath = path.join(
-          sandbox.path,
-          CONTROLLER_PATH,
-          controllerFileName[i],
-        );
-        assert.file(filePath);
-      });
-
       it('checks controller content with hasMany relation', async () => {
         const filePath = path.join(
           sandbox.path,
           CONTROLLER_PATH,
           controllerFileName[i],
         );
+        assert.file(filePath);
         expectFileToMatchSnapshot(filePath);
       });
     }
@@ -363,19 +311,14 @@ describe('lb4 relation HasMany', /** @this {Mocha.Suite} */ function () {
       },
       {
         relationType: 'hasMany',
-        sourceModel: 'CustomerClass',
-        destinationModel: 'OrderClass',
-        registerInclusionResolver: true,
-      },
-      {
-        relationType: 'hasMany',
-        sourceModel: 'CustomerClassType',
-        destinationModel: 'OrderClassType',
+        sourceModel: 'Customer',
+        destinationModel: 'Order',
+        relationName: 'custom_name',
         registerInclusionResolver: false,
       },
     ];
 
-    const sourceClassnames = ['Customer', 'CustomerClass', 'CustomerClassType'];
+    const sourceClassnames = ['Customer', 'Customer'];
     promptArray.forEach(function (multiItemPrompt, i) {
       describe('answers ' + JSON.stringify(multiItemPrompt), () => {
         suite(multiItemPrompt, i);

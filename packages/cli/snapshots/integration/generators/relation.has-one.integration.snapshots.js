@@ -7,6 +7,29 @@
 
 'use strict';
 
+exports[`lb4 relation HasOne checks generated source class repository answers {"relationType":"hasOne","sourceModel":"Customer","destinationModel":"Address","registerInclusionResolver":false} generates Customer repository file with different inputs 1`] = `
+import {DefaultCrudRepository, repository, HasOneRepositoryFactory} from '@loopback/repository';
+import {Customer, Address} from '../models';
+import {DbDataSource} from '../datasources';
+import {inject, Getter} from '@loopback/core';
+import {AddressRepository} from './address.repository';
+
+export class CustomerRepository extends DefaultCrudRepository<
+  Customer,
+  typeof Customer.prototype.id
+> {
+
+  public readonly address: HasOneRepositoryFactory<Address, typeof Customer.prototype.id>;
+
+  constructor(@inject('datasources.db') dataSource: DbDataSource, @repository.getter('AddressRepository') protected addressRepositoryGetter: Getter<AddressRepository>,) {
+    super(Customer, dataSource);
+    this.address = this.createHasOneRepositoryFactoryFor('address', addressRepositoryGetter);
+  }
+}
+
+`;
+
+
 exports[`lb4 relation HasOne checks generated source class repository answers {"relationType":"hasOne","sourceModel":"Customer","destinationModel":"Address"} generates Customer repository file with different inputs 1`] = `
 import {DefaultCrudRepository, repository, HasOneRepositoryFactory} from '@loopback/repository';
 import {Customer, Address} from '../models';
@@ -25,53 +48,6 @@ export class CustomerRepository extends DefaultCrudRepository<
     super(Customer, dataSource);
     this.address = this.createHasOneRepositoryFactoryFor('address', addressRepositoryGetter);
     this.registerInclusionResolver('address', this.address.inclusionResolver);
-  }
-}
-
-`;
-
-
-exports[`lb4 relation HasOne checks generated source class repository answers {"relationType":"hasOne","sourceModel":"CustomerClass","destinationModel":"AddressClass","registerInclusionResolver":true} generates CustomerClass repository file with different inputs 1`] = `
-import {DefaultCrudRepository, repository, HasOneRepositoryFactory} from '@loopback/repository';
-import {CustomerClass, AddressClass} from '../models';
-import {MyDBDataSource} from '../datasources';
-import {inject, Getter} from '@loopback/core';
-import {AddressClassRepository} from './address-class.repository';
-
-export class CustomerClassRepository extends DefaultCrudRepository<
-  CustomerClass,
-  typeof CustomerClass.prototype.custNumber
-> {
-
-  public readonly addressClass: HasOneRepositoryFactory<AddressClass, typeof CustomerClass.prototype.custNumber>;
-
-  constructor(@inject('datasources.myDB') dataSource: MyDBDataSource, @repository.getter('AddressClassRepository') protected addressClassRepositoryGetter: Getter<AddressClassRepository>,) {
-    super(CustomerClass, dataSource);
-    this.addressClass = this.createHasOneRepositoryFactoryFor('addressClass', addressClassRepositoryGetter);
-    this.registerInclusionResolver('addressClass', this.addressClass.inclusionResolver);
-  }
-}
-
-`;
-
-
-exports[`lb4 relation HasOne checks generated source class repository answers {"relationType":"hasOne","sourceModel":"CustomerClassType","destinationModel":"AddressClassType","registerInclusionResolver":false} generates CustomerClassType repository file with different inputs 1`] = `
-import {DefaultCrudRepository, repository, HasOneRepositoryFactory} from '@loopback/repository';
-import {CustomerClassType, AddressClassType} from '../models';
-import {MyDBDataSource} from '../datasources';
-import {inject, Getter} from '@loopback/core';
-import {AddressClassTypeRepository} from './address-class-type.repository';
-
-export class CustomerClassTypeRepository extends DefaultCrudRepository<
-  CustomerClassType,
-  typeof CustomerClassType.prototype.custNumber
-> {
-
-  public readonly addressClassType: HasOneRepositoryFactory<AddressClassType, typeof CustomerClassType.prototype.custNumber>;
-
-  constructor(@inject('datasources.myDB') dataSource: MyDBDataSource, @repository.getter('AddressClassTypeRepository') protected addressClassTypeRepositoryGetter: Getter<AddressClassTypeRepository>,) {
-    super(CustomerClassType, dataSource);
-    this.addressClassType = this.createHasOneRepositoryFactoryFor('addressClassType', addressClassTypeRepositoryGetter);
   }
 }
 
@@ -367,120 +343,6 @@ export class Address extends Entity {
 `;
 
 
-exports[`lb4 relation HasOne generates model relation with custom foreignKey answers {"relationType":"hasOne","sourceModel":"CustomerClass","destinationModel":"AddressClass","foreignKeyName":"mykey"} add the keyTo to the source model 1`] = `
-import {Entity, model, property, hasOne} from '@loopback/repository';
-import {AddressClass} from './address-class.model';
-
-@model()
-export class CustomerClass extends Entity {
-  @property({
-    type: 'number',
-    id: true,
-  })
-  custNumber?: number;
-
-  @property({
-    type: 'string',
-  })
-  name?: string;
-
-  @hasOne(() => AddressClass, {keyTo: 'mykey'})
-  addressClass: AddressClass;
-
-  constructor(data?: Partial<CustomerClass>) {
-    super(data);
-  }
-}
-
-`;
-
-
-exports[`lb4 relation HasOne generates model relation with custom foreignKey answers {"relationType":"hasOne","sourceModel":"CustomerClass","destinationModel":"AddressClass","foreignKeyName":"mykey"} add the keyTo to the source model 2`] = `
-import {Entity, model, property} from '@loopback/repository';
-
-@model()
-export class AddressClass extends Entity {
-  @property({
-    type: 'number',
-    id: true,
-  })
-  addressNumber?: number;
-
-  @property({
-    type: 'string',
-  })
-  name?: string;
-
-  @property({
-    type: 'number',
-  })
-  mykey?: number;
-
-  constructor(data?: Partial<AddressClass>) {
-    super(data);
-  }
-}
-
-`;
-
-
-exports[`lb4 relation HasOne generates model relation with custom foreignKey answers {"relationType":"hasOne","sourceModel":"CustomerClassType","destinationModel":"AddressClassType","foreignKeyName":"mykey"} add the keyTo to the source model 1`] = `
-import {Entity, model, property, hasOne} from '@loopback/repository';
-import {AddressClassType} from './address-class-type.model';
-
-@model()
-export class CustomerClassType extends Entity {
-  @property({
-    type: 'number',
-    id: true,
-  })
-  custNumber: number;
-
-  @property({
-    type: 'string',
-  })
-  name?: string;
-
-  @hasOne(() => AddressClassType, {keyTo: 'mykey'})
-  addressClassType: AddressClassType;
-
-  constructor(data?: Partial<CustomerClassType>) {
-    super(data);
-  }
-}
-
-`;
-
-
-exports[`lb4 relation HasOne generates model relation with custom foreignKey answers {"relationType":"hasOne","sourceModel":"CustomerClassType","destinationModel":"AddressClassType","foreignKeyName":"mykey"} add the keyTo to the source model 2`] = `
-import {Entity, model, property} from '@loopback/repository';
-
-@model()
-export class AddressClassType extends Entity {
-  @property({
-    type: 'string',
-    id: true,
-  })
-  addressString: string;
-
-  @property({
-    type: 'string',
-  })
-  name?: string;
-
-  @property({
-    type: 'number',
-  })
-  mykey?: number;
-
-  constructor(data?: Partial<AddressClassType>) {
-    super(data);
-  }
-}
-
-`;
-
-
 exports[`lb4 relation HasOne generates model relation with custom relation name answers {"relationType":"hasOne","sourceModel":"Customer","destinationModel":"Address","relationName":"myAddress"} relation name should be myAddress 1`] = `
 import {Entity, model, property, hasOne} from '@loopback/repository';
 import {Address} from './address.model';
@@ -540,120 +402,6 @@ export class Address extends Entity {
 `;
 
 
-exports[`lb4 relation HasOne generates model relation with custom relation name answers {"relationType":"hasOne","sourceModel":"CustomerClass","destinationModel":"AddressClass","relationName":"myAddress"} relation name should be myAddress 1`] = `
-import {Entity, model, property, hasOne} from '@loopback/repository';
-import {AddressClass} from './address-class.model';
-
-@model()
-export class CustomerClass extends Entity {
-  @property({
-    type: 'number',
-    id: true,
-  })
-  custNumber?: number;
-
-  @property({
-    type: 'string',
-  })
-  name?: string;
-
-  @hasOne(() => AddressClass)
-  myAddress: AddressClass;
-
-  constructor(data?: Partial<CustomerClass>) {
-    super(data);
-  }
-}
-
-`;
-
-
-exports[`lb4 relation HasOne generates model relation with custom relation name answers {"relationType":"hasOne","sourceModel":"CustomerClass","destinationModel":"AddressClass","relationName":"myAddress"} relation name should be myAddress 2`] = `
-import {Entity, model, property} from '@loopback/repository';
-
-@model()
-export class AddressClass extends Entity {
-  @property({
-    type: 'number',
-    id: true,
-  })
-  addressNumber?: number;
-
-  @property({
-    type: 'string',
-  })
-  name?: string;
-
-  @property({
-    type: 'number',
-  })
-  customerClassId?: number;
-
-  constructor(data?: Partial<AddressClass>) {
-    super(data);
-  }
-}
-
-`;
-
-
-exports[`lb4 relation HasOne generates model relation with custom relation name answers {"relationType":"hasOne","sourceModel":"CustomerClassType","destinationModel":"AddressClassType","relationName":"myAddress"} relation name should be myAddress 1`] = `
-import {Entity, model, property, hasOne} from '@loopback/repository';
-import {AddressClassType} from './address-class-type.model';
-
-@model()
-export class CustomerClassType extends Entity {
-  @property({
-    type: 'number',
-    id: true,
-  })
-  custNumber: number;
-
-  @property({
-    type: 'string',
-  })
-  name?: string;
-
-  @hasOne(() => AddressClassType)
-  myAddress: AddressClassType;
-
-  constructor(data?: Partial<CustomerClassType>) {
-    super(data);
-  }
-}
-
-`;
-
-
-exports[`lb4 relation HasOne generates model relation with custom relation name answers {"relationType":"hasOne","sourceModel":"CustomerClassType","destinationModel":"AddressClassType","relationName":"myAddress"} relation name should be myAddress 2`] = `
-import {Entity, model, property} from '@loopback/repository';
-
-@model()
-export class AddressClassType extends Entity {
-  @property({
-    type: 'string',
-    id: true,
-  })
-  addressString: string;
-
-  @property({
-    type: 'string',
-  })
-  name?: string;
-
-  @property({
-    type: 'number',
-  })
-  customerClassTypeId?: number;
-
-  constructor(data?: Partial<AddressClassType>) {
-    super(data);
-  }
-}
-
-`;
-
-
 exports[`lb4 relation HasOne generates model relation with default values answers {"relationType":"hasOne","sourceModel":"Customer","destinationModel":"Address"} has correct default imports 1`] = `
 import {Entity, model, property, hasOne} from '@loopback/repository';
 import {Address} from './address.model';
@@ -676,62 +424,6 @@ export class Customer extends Entity {
   address: Address;
 
   constructor(data?: Partial<Customer>) {
-    super(data);
-  }
-}
-
-`;
-
-
-exports[`lb4 relation HasOne generates model relation with default values answers {"relationType":"hasOne","sourceModel":"CustomerClass","destinationModel":"AddressClass"} has correct default imports 1`] = `
-import {Entity, model, property, hasOne} from '@loopback/repository';
-import {AddressClass} from './address-class.model';
-
-@model()
-export class CustomerClass extends Entity {
-  @property({
-    type: 'number',
-    id: true,
-  })
-  custNumber?: number;
-
-  @property({
-    type: 'string',
-  })
-  name?: string;
-
-  @hasOne(() => AddressClass)
-  addressClass: AddressClass;
-
-  constructor(data?: Partial<CustomerClass>) {
-    super(data);
-  }
-}
-
-`;
-
-
-exports[`lb4 relation HasOne generates model relation with default values answers {"relationType":"hasOne","sourceModel":"CustomerClassType","destinationModel":"AddressClassType"} has correct default imports 1`] = `
-import {Entity, model, property, hasOne} from '@loopback/repository';
-import {AddressClassType} from './address-class-type.model';
-
-@model()
-export class CustomerClassType extends Entity {
-  @property({
-    type: 'number',
-    id: true,
-  })
-  custNumber: number;
-
-  @property({
-    type: 'string',
-  })
-  name?: string;
-
-  @hasOne(() => AddressClassType)
-  addressClassType: AddressClassType;
-
-  constructor(data?: Partial<CustomerClassType>) {
     super(data);
   }
 }
