@@ -414,6 +414,114 @@ matching context for a given scope in the chain. Resolved binding values will be
 cached and shared on the scoped context. This ensures a binding to have the same
 value for the scoped context.
 
+### Resolve a binding value by key and scope within a context hierarchy
+
+Binding resolution happens explicitly with `ctx.get()`, `ctx.getSync()`, or
+`binding.getValue(ctx)`. It may be also triggered with dependency injections
+when a class is instantiated or a method is invoked.
+
+Within a context hierarchy, resolving a binding involves the following context
+objects, which can be the same or different depending on the context chain and
+binding scopes.
+
+Let's assume we have a context chain configured as follows:
+
+```ts
+import {Context} from '@loopback/core';
+
+const appCtx = new Context('application');
+appCtx.scope = BindingScope.APPLICATION;
+
+const serverCtx = new Context(appCtx, 'server');
+serverCtx.scope = BindingScope.SERVER;
+
+const reqCtx = new Context(serverCtx, 'request');
+reqCtx.scope = BindingScope.REQUEST;
+```
+
+1. The owner context
+
+The owner context is the context in which a binding is registered by
+`ctx.bind()` or `ctx.add()` APIs.
+
+Let's add some bindings to the context chain.
+
+```ts
+appCtx.bind('foo.app').to('app.bar');
+serverCtx.bind('foo.server').to('server.bar');
+```
+
+The owner context for the code snippet above will be:
+
+- 'foo.app': appCtx
+- 'foo.server': serverCtx
+
+2. The current context
+
+The current context is either the one that is explicitly passed in APIs that
+starts the resolution or implicitly used to inject dependencies. For dependency
+injections, it will be the resolution context of the owning class binding. For
+example, the current context is `reqCtx` for the statement below:
+
+```ts
+const val = await reqCtx.get('foo.app');
+```
+
+3. The resolution context
+
+The resolution context is the context in the chain that will be used to find
+bindings by key. Only the resolution context itself and its ancestors are
+visible for the binding resolution.
+
+The resolution context is determined for a binding key as follows:
+
+1. Find the first binding with the given key in the current context or its
+   ancestors recursively
+
+2. Use the scope of binding found to locate the resolution context:
+
+- Use the `current context` for `CONTEXT` and `TRANSIENT` scopes
+- Use the `owner context` for `SINGLETON` scope
+- Use the first context that matches the binding scope in the chain starting
+  from the current context and traversing to its ancestors for `APPLICATION`,
+  `SERVER` and `REQUEST` scopes
+
+For example:
+
+```ts
+import {generateUniqueId} from '@loopback/core';
+
+appCtx.bind('foo').to('app.bar');
+serverCtx
+  .bind('foo')
+  .toDynamicValue(() => `foo.server.${generateUniqueId()}`)
+  .inScope(BindingScope.SERVER);
+
+serverCtx
+  .bind('xyz')
+  .toDynamicValue(() => `abc.server.${generateUniqueId()}`)
+  .inScope(BindingScope.SINGLETON);
+
+const val = await reqCtx.get('foo');
+const appVal = await appCtx.get('foo');
+const xyz = await reqCtx.get('xyz');
+```
+
+For `const val = await reqCtx.get('foo');`, the binding will be `foo`
+(scope=SERVER) in the `serverCtx` and resolution context will be `serverCtx`.
+
+For `const appVal = await appCtx.get('foo');`, the binding will be `foo`
+(scope=TRANSIENT) in the `appCtx` and resolution context will be `appCtx`.
+
+For `const xyz = await reqCtx.get('xyz');`, the binding will be `xyz`
+(scope=SINGLETON) in the `serverCtx` and resolution context will be `serverCtx`.
+
+For dependency injections, the `current context` will be the
+`resolution context` of the class binding that declares injections. The
+`resolution context` will be located for each injection. If the bindings to be
+injected is NOT visible (either the key does not exist or only exists in
+descendant) to the `resolution context`, an error will be reported.
+
 ### Refresh a binding with non-transient scopes
 
 `SINGLETON`/`CONTEXT`/`APPLICATION`/`SERVER` scopes can be used to minimize the
