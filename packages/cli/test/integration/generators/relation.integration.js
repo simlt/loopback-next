@@ -13,6 +13,7 @@ const expect = testlab.expect;
 const TestSandbox = testlab.TestSandbox;
 const generator = path.join(__dirname, '../../../generators/relation');
 const SANDBOX_FILES = require('../../fixtures/relation').SANDBOX_FILES2;
+const SANDBOX_FILES4 = require('../../fixtures/relation').SANDBOX_FILES4;
 const testUtils = require('../../test-utils');
 
 // Test Sandbox
@@ -148,6 +149,40 @@ describe('lb4 relation', /** @this {Mocha.Suite} */ function () {
         sandbox.path,
         CONTROLLER_PATH,
         'index.ts',
+      );
+
+      assert.equalsFileContent(
+        expectedControllerIndexFile,
+        "export * from './customer.controller';\nexport * from './customer-order.controller';\n",
+      );
+    });
+  });
+
+  context('add controller to existing index file only once', () => {
+    it('check if the controller exported to index file only once', async () => {
+      const prompt = {
+        relationType: 'belongsTo',
+        sourceModel: 'Order',
+        destinationModel: 'Customer',
+      };
+
+      await testUtils
+        .executeGenerator(generator)
+        .inDir(sandbox.path, () =>
+          testUtils.givenLBProject(sandbox.path, {
+            additionalFiles: SANDBOX_FILES4,
+          }),
+        )
+        .withPrompts(prompt);
+      const expectedControllerIndexFile = path.join(
+        sandbox.path,
+        CONTROLLER_PATH,
+        'index.ts',
+      );
+
+      assert.equalsFileContent(
+        expectedControllerIndexFile,
+        "export * from './order-customer.controller';\n",
       );
 
       assert.file(expectedControllerIndexFile);

@@ -7,8 +7,7 @@
 
 'use strict';
 
-exports[`lb4 relation add new controller to existing index file check if the controller exported to index file  1`] = `
-export * from './customer.controller';
-export * from './customer-order.controller';
+exports[`lb4 relation add controller to existing index file only once check if the controller exported to index file only once 1`] = `
+export * from './order-customer.controller';
 
 `;
