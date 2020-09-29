@@ -11,13 +11,15 @@
 'use strict';
 
 const path = require('path');
-const fs = require('fs');
+const {
+  isDryRun,
+  printJson,
+  writeJsonSync,
+  loadLernaRepo,
+} = require('./script-util');
 
-const Project = require('@lerna/project');
-
-async function updateTemplateDeps() {
-  const project = new Project(process.cwd());
-  const packages = await project.getPackages();
+async function updateTemplateDeps(options) {
+  const {project, packages} = await loadLernaRepo();
 
   const pkgs = packages
     .filter(pkg => !pkg.private)
@@ -66,18 +68,17 @@ async function updateTemplateDeps() {
 
   cliPkg.config.templateDependencies = deps;
 
-  // Convert to JSON
-  const json = JSON.stringify(cliPkg, null, 2);
-
-  if (process.argv[2] === '-f') {
-    // Using `-f` to overwrite packages/cli/lib/dependencies.json
-    fs.writeFileSync(cliPackageJson, json + '\n', {encoding: 'utf-8'});
-    console.log('%s has been updated.', cliPackageJson);
+  if (isDryRun(options)) {
+    // Dry run
+    printJson(cliPkg);
   } else {
-    // Otherwise write to console
-    console.log(json);
+    //Overwrite packages/cli/lib/dependencies.json
+    writeJsonSync(cliPackageJson, cliPkg);
+    console.log('%s has been updated.', cliPackageJson);
   }
 }
+
+module.exports = updateTemplateDeps;
 
 if (require.main === module) {
   updateTemplateDeps().catch(err => {

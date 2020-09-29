@@ -13,8 +13,7 @@
 
 const path = require('path');
 const fs = require('fs-extra');
-
-const Project = require('@lerna/project');
+const {isTypeScriptPackage, loadLernaRepo} = require('./script-util');
 
 /**
  * Check existence of LICENSE file in the monorepo packages
@@ -101,20 +100,17 @@ async function checkPkgsPackageJson(packages, rootPkg) {
   }
 
   for (const p of pkgs) {
-    const pkg = fs.readJsonSync(path.join(p.location, 'package.json'));
+    const pkg = p.toJSON();
 
-    const isTypescriptPackage = fs.existsSync(
-      path.join(p.location, 'tsconfig.json'),
-    );
     const isCorrectMain = pkg.main && pkg.main === 'dist/index.js';
 
-    if (isTypescriptPackage && !isCorrectMain) {
+    if (isTypeScriptPackage(p) && !isCorrectMain) {
       errors.push(getErrorText(p.name, 'main'));
     }
 
     const isCorrectTypes = pkg.types && pkg.types === 'dist/index.d.ts';
 
-    if (isTypescriptPackage && !isCorrectTypes) {
+    if (isTypeScriptPackage(p) && !isCorrectTypes) {
       errors.push(getErrorText(p.name, 'types'));
     }
 
@@ -184,8 +180,7 @@ function formatErrorsText(errors) {
 }
 
 async function checkPackagesMetadata() {
-  const project = new Project(process.cwd());
-  const packages = await project.getPackages();
+  const {project, packages} = await loadLernaRepo();
   const rootPath = project.rootPath;
   const rootPkg = fs.readJsonSync('package.json');
 
@@ -205,7 +200,7 @@ async function checkPackagesMetadata() {
 
 if (require.main === module) {
   checkPackagesMetadata().catch(err => {
-    console.error(err.message);
+    console.error(err);
     process.exit(1);
   });
 }

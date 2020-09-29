@@ -12,8 +12,8 @@
 
 const path = require('path');
 const fs = require('fs-extra');
-const Project = require('@lerna/project');
 const createMarkdownTable = require('markdown-table');
+const {getPackages} = require('./script-util');
 
 const MONOREPO_FILE_DIST = 'docs/site';
 const MONOREPO_FILE_NAME = 'MONOREPO.md';
@@ -23,8 +23,7 @@ function getPackageRelativeUri(pkg) {
 }
 
 async function getSortedPackages() {
-  const project = new Project(process.cwd());
-  const packages = await project.getPackages();
+  const packages = await getPackages();
   packages.sort((p1, p2) =>
     getPackageRelativeUri(p1).localeCompare(getPackageRelativeUri(p2)),
   );

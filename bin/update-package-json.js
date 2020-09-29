@@ -14,7 +14,15 @@
 const path = require('path');
 const fs = require('fs-extra');
 
-const Project = require('@lerna/project');
+const {
+  isDryRun,
+  isTypeScriptPackage,
+  loadLernaRepo,
+  cloneJson,
+  isJsonEqual,
+  writeJsonSync,
+  printJson,
+} = require('./script-util');
 
 /**
  * Check all required fields of package.json for each package on the matching
@@ -23,23 +31,17 @@ const Project = require('@lerna/project');
  * @param {Object} rootPkg A root package.json
  */
 async function updatePackageJsonFiles(options) {
-  const project = new Project(process.cwd());
-  const packages = await project.getPackages();
+  const {project, packages} = await loadLernaRepo();
   const rootPath = project.rootPath;
   const rootPkg = fs.readJsonSync(path.join(rootPath, 'package.json'));
 
   for (const p of packages) {
-    const pkgFile = path.join(p.location, 'package.json');
-    const pkg = fs.readJsonSync(pkgFile);
-    const current = JSON.stringify(pkg, null, 2);
-
-    const isTypescriptPackage = fs.existsSync(
-      path.join(p.location, 'tsconfig.json'),
-    );
+    const pkgFile = p.manifestLocation;
+    const pkg = cloneJson(p.toJSON());
 
     const isLernaRepo = fs.existsSync(path.join(p.location, 'lerna.json'));
 
-    if (isTypescriptPackage && !isLernaRepo) {
+    if (isTypeScriptPackage(p) && !isLernaRepo) {
       pkg.main = 'dist/index.js';
       pkg.types = 'dist/index.d.ts';
     }
@@ -61,13 +63,12 @@ async function updatePackageJsonFiles(options) {
     };
 
     pkg.engines = rootPkg.engines;
-    const updated = JSON.stringify(pkg, null, 2);
-    if (updated !== current) {
-      if (options && options.dryRun) {
-        console.log(updated);
+    if (isJsonEqual(pkg, p.toJSON())) {
+      if (isDryRun(options)) {
+        printJson(pkg);
       } else {
-        console.log('%s is updated.', path.relative(p.rootPath, pkgFile));
-        fs.writeFileSync(pkgFile, updated + '\n', {encoding: 'utf-8'});
+        console.log('%s has been updated.', path.relative(p.rootPath, pkgFile));
+        writeJsonSync(pkgFile, pkg);
       }
     }
   }
@@ -77,9 +78,10 @@ function getCopyrightOwner(pkg) {
   return pkg['copyright.owner'] || (pkg.copyright && pkg.copyright.owner);
 }
 
+module.exports = updatePackageJsonFiles;
+
 if (require.main === module) {
-  const dryRun = process.argv.slice(2).includes('--dry-run');
-  updatePackageJsonFiles({dryRun}).catch(err => {
+  updatePackageJsonFiles().catch(err => {
     console.error(err.message);
     process.exit(1);
   });
