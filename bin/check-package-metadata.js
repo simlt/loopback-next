@@ -124,7 +124,7 @@ async function checkPkgsPackageJson(packages, rootPkg) {
       pkg.publishConfig.access === 'public';
 
     if (!isPublicAccess) {
-      errors.push(getErrorText(p.name, 'publicConfig.access'));
+      errors.push(getErrorText(p.name, 'publishConfig.access'));
     }
 
     if (pkg.author !== rootPkg.author) {
