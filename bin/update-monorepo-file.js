@@ -77,6 +77,8 @@ async function updateMonorepoFile() {
   fs.writeFileSync(monorepoFilePath, content + '\n', {encoding: 'utf-8'});
 }
 
+module.exports = updateMonorepoFile;
+
 if (require.main === module) {
   updateMonorepoFile().catch(err => {
     console.error(err);

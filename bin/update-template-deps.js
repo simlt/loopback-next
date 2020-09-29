@@ -18,6 +18,10 @@ const {
   loadLernaRepo,
 } = require('./script-util');
 
+/**
+ * Update `templateDependencies` in `packages/cli/package.json`
+ * @param {*} options - Options
+ */
 async function updateTemplateDeps(options) {
   const {project, packages} = await loadLernaRepo();
 

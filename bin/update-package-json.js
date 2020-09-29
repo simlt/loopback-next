@@ -63,7 +63,7 @@ async function updatePackageJsonFiles(options) {
     };
 
     pkg.engines = rootPkg.engines;
-    if (isJsonEqual(pkg, p.toJSON())) {
+    if (!isJsonEqual(pkg, p.toJSON())) {
       if (isDryRun(options)) {
         printJson(pkg);
       } else {

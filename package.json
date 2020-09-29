@@ -26,6 +26,7 @@
     "update-all-deps": "npm update && lerna exec -- npm update && npm run update-package-locks",
     "update-monorepo-file": "node bin/update-monorepo-file",
     "sync-dev-deps": "node bin/sync-dev-deps",
+    "fix-monorepo": "node bin/fix-monorepo",
     "save-cli-metadata": "node packages/cli/bin/cli-main.js --meta",
     "version": "npm run update-template-deps && npm run update-package-deps && npm run save-cli-metadata",
     "outdated": "npm outdated --depth 0 && lerna exec --no-bail \"npm outdated --depth 0\"",

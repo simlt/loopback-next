@@ -11,13 +11,17 @@
 'use strict';
 
 const path = require('path');
-const fs = require('fs');
+const fs = require('fs-extra');
 
-const Project = require('@lerna/project');
+const {
+  loadLernaRepo,
+  writeJsonSync,
+  isDryRun,
+  printJson,
+} = require('./script-util');
 
-async function syncDevDeps() {
-  const project = new Project(process.cwd());
-  const packages = await project.getPackages();
+async function syncDevDeps(options) {
+  const {project, packages} = await loadLernaRepo();
 
   const rootPath = project.rootPath;
 
@@ -57,23 +61,28 @@ async function syncDevDeps() {
   for (const pkg of packages) {
     if (pkg.name === '@loopback/eslint-config') continue;
     const pkgFile = pkg.manifestLocation;
-    updatePackageJson(pkgFile, {
-      eslint: masterDeps.eslint,
-      typescript: masterDeps.typescript,
-    });
+    updatePackageJson(
+      pkgFile,
+      {
+        eslint: masterDeps.eslint,
+        typescript: masterDeps.typescript,
+      },
+      options,
+    );
   }
 
   // Update dependencies in monorepo root
   const rootPackage = path.join(rootPath, 'package.json');
-  updatePackageJson(rootPackage, masterDeps);
+  updatePackageJson(rootPackage, masterDeps, options);
 }
 
 /**
  * Update package.json with given master dependencies
  * @param pkgFile - Path of `package.json`
  * @param masterDeps - Master dependencies
+ * @param options - Options
  */
-function updatePackageJson(pkgFile, masterDeps) {
+function updatePackageJson(pkgFile, masterDeps, options) {
   const data = readPackageJson(pkgFile);
   const isExample = data.name.startsWith('@loopback/example-');
   const isRoot = data.name === 'loopback-next';
@@ -94,26 +103,24 @@ function updatePackageJson(pkgFile, masterDeps) {
     }
   }
   if (!modified) return false;
-  writePackageJson(pkgFile, data);
+  writePackageJson(pkgFile, data, options);
   return true;
 }
 
-if (require.main === module) {
-  syncDevDeps().catch(err => {
-    console.error(err);
-    process.exit(1);
-  });
-}
-
 function readPackageJson(filePath) {
-  return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+  return fs.readJsonSync(filePath, 'utf-8');
 }
 
-function writePackageJson(filePath, data) {
+function writePackageJson(filePath, data, options) {
   data.dependencies = sortObjectByKeys(data.dependencies);
   data.devDependencies = sortObjectByKeys(data.devDependencies);
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2) + '\n', 'utf-8');
-  console.log('%s has been updated.', filePath);
+  if (isDryRun(options)) {
+    console.log('%s', filePath);
+    printJson(data);
+  } else {
+    writeJsonSync(filePath, data);
+    console.log('%s has been updated.', filePath);
+  }
 }
 
 /**
@@ -129,4 +136,13 @@ function sortObjectByKeys(data) {
     result[k] = data[k];
   }
   return result;
+}
+
+module.exports = syncDevDeps;
+
+if (require.main === module) {
+  syncDevDeps().catch(err => {
+    console.error(err);
+    process.exit(1);
+  });
 }

@@ -10,8 +10,17 @@
  */
 'use strict';
 
-const {getPackages, writeJsonSync, isDryRun} = require('./script-util');
+const {
+  getPackages,
+  writeJsonSync,
+  isDryRun,
+  stringifyJson,
+} = require('./script-util');
 
+/**
+ * Update local package dependencies for `@loopback/*` modules
+ * @param {*} options - Options
+ */
 async function updatePackageDeps(options) {
   // List all packages within the monorepo
   const packages = await getPackages();
@@ -32,8 +41,8 @@ async function updatePackageDeps(options) {
     if (isDryRun(options)) {
       // Dry run
       // Convert to JSON
-      const json = JSON.stringify(pkgJson, null, 2);
-      console.log('%s\n', pkgJsonFile, json);
+      const json = stringifyJson(pkgJson);
+      console.log('%s\n%s\n', pkgJsonFile, json);
     } else {
       writeJsonSync(pkgJsonFile, pkgJson);
       console.log('%s has been updated.', pkgJsonFile);
@@ -53,8 +62,10 @@ async function updatePackageDeps(options) {
             // Update the version range to be `^<pkgVersion>`
             // We choose to be conservative as only this version has been verified
             // by CI
-            deps[d] = `^${pkgVersion}`;
-            updated = true;
+            if (deps[d] !== `^${pkgVersion}`) {
+              deps[d] = `^${pkgVersion}`;
+              updated = true;
+            }
           }
         }
       }
@@ -62,6 +73,8 @@ async function updatePackageDeps(options) {
     return updated;
   }
 }
+
+module.exports = updatePackageDeps;
 
 if (require.main === module) {
   updatePackageDeps().catch(err => {

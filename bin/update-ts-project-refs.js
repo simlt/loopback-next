@@ -50,7 +50,11 @@ function loadTsConfig(pkgLocation, dryRun = true) {
   };
 }
 
-async function updateReferences(options) {
+/**
+ * Update TypeScript project references
+ * @param {*} options - Options
+ */
+async function updateTsReferences(options) {
   const dryRun = isDryRun(options);
   const {project, packages} = await loadLernaRepo();
 
@@ -143,11 +147,11 @@ async function updateReferences(options) {
   }
 }
 
+module.exports = updateTsReferences;
+
 if (require.main === module) {
-  updateReferences().catch(err => {
+  updateTsReferences().catch(err => {
     console.error(err);
     process.exit(1);
   });
 }
-
-module.exports = updateReferences;
