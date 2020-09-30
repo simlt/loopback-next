@@ -13,7 +13,7 @@
 const path = require('path');
 const fs = require('fs-extra');
 const createMarkdownTable = require('markdown-table');
-const {getPackages} = require('./script-util');
+const {getPackages, main} = require('./script-util');
 
 const MONOREPO_FILE_DIST = 'docs/site';
 const MONOREPO_FILE_NAME = 'MONOREPO.md';
@@ -79,9 +79,4 @@ async function updateMonorepoFile() {
 
 module.exports = updateMonorepoFile;
 
-if (require.main === module) {
-  updateMonorepoFile().catch(err => {
-    console.error(err);
-    process.exit(1);
-  });
-}
+main(module, updateMonorepoFile);

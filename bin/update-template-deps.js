@@ -16,6 +16,7 @@ const {
   printJson,
   writeJsonSync,
   loadLernaRepo,
+  main,
 } = require('./script-util');
 
 /**
@@ -84,9 +85,4 @@ async function updateTemplateDeps(options) {
 
 module.exports = updateTemplateDeps;
 
-if (require.main === module) {
-  updateTemplateDeps().catch(err => {
-    console.error(err);
-    process.exit(1);
-  });
-}
+main(module, updateTemplateDeps);

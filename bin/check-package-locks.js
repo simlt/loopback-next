@@ -57,6 +57,8 @@ async function checkPackageLocks() {
   }
 }
 
+module.exports = checkPackageLocks;
+
 if (require.main === module) {
   checkPackageLocks().then(
     ok => process.exit(ok ? 0 : 1),

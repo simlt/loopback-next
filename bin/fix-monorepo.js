@@ -10,13 +10,14 @@
  */
 'use strict';
 
+const {main} = require('./script-util');
 const syncDevDeps = require('./sync-dev-deps');
 const updateMonorepo = require('./update-monorepo-file');
 const updatePackageDeps = require('./update-package-deps');
 const updatePackageJson = require('./update-package-json');
 const updateTsRefs = require('./update-ts-project-refs');
 
-async function main() {
+async function run() {
   // Ensure all packages use the local version of `@loopback/*`
   await updatePackageDeps();
   // Ensure `devDependencies` is in sync
@@ -29,9 +30,4 @@ async function main() {
   await updateTsRefs();
 }
 
-if (require.main === module) {
-  main().catch(err => {
-    console.error(err);
-    process.exit(1);
-  });
-}
+main(module, run);

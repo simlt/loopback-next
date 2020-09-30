@@ -18,6 +18,7 @@ const {
   writeJsonSync,
   isDryRun,
   printJson,
+  main,
 } = require('./script-util');
 
 async function syncDevDeps(options) {
@@ -140,9 +141,4 @@ function sortObjectByKeys(data) {
 
 module.exports = syncDevDeps;
 
-if (require.main === module) {
-  syncDevDeps().catch(err => {
-    console.error(err);
-    process.exit(1);
-  });
-}
+main(module, syncDevDeps);

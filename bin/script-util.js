@@ -67,10 +67,18 @@ function cloneJson(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
 
+/**
+ * Print stringified json
+ * @param {*} obj - json object
+ */
 function printJson(obj) {
   console.log(stringifyJson(obj));
 }
 
+/**
+ * Stringify JSON object
+ * @param {*} obj - json object
+ */
 function stringifyJson(obj) {
   return JSON.stringify(obj, null, 2);
 }
@@ -83,6 +91,27 @@ function isTypeScriptPackage(pkg) {
   return fs.existsSync(path.join(pkg.location, 'tsconfig.json'));
 }
 
+/**
+ * Run an async function
+ * @param {*} asyncFn - An async function
+ * @param {*} args - Arguments
+ */
+function main(currentModule, asyncFn, ...args) {
+  if (require.main === currentModule) {
+    asyncFn(...args).then(
+      result => {
+        if (result != null) {
+          console.log(result);
+        }
+      },
+      err => {
+        console.error(err);
+        process.exit(1);
+      },
+    );
+  }
+}
+
 exports.loadLernaRepo = loadLernaRepo;
 exports.isDryRun = isDryRun;
 exports.getPackages = getPackages;
@@ -92,3 +121,4 @@ exports.printJson = printJson;
 exports.isTypeScriptPackage = isTypeScriptPackage;
 exports.writeJsonSync = writeJsonSync;
 exports.stringifyJson = stringifyJson;
+exports.main = main;

@@ -13,7 +13,7 @@
 
 const path = require('path');
 const fs = require('fs-extra');
-const {isTypeScriptPackage, loadLernaRepo} = require('./script-util');
+const {isTypeScriptPackage, loadLernaRepo, main} = require('./script-util');
 
 /**
  * Check existence of LICENSE file in the monorepo packages
@@ -198,9 +198,6 @@ async function checkPackagesMetadata() {
   }
 }
 
-if (require.main === module) {
-  checkPackagesMetadata().catch(err => {
-    console.error(err);
-    process.exit(1);
-  });
-}
+module.exports = checkPackagesMetadata;
+
+main(module, checkPackagesMetadata);

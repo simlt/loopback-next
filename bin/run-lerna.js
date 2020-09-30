@@ -14,6 +14,7 @@ const path = require('path');
 const Project = require('@lerna/project');
 const build = require('../packages/build');
 const fs = require('fs');
+const {main} = require('./script-util');
 
 async function run(argv, options) {
   let project;
@@ -31,9 +32,5 @@ async function run(argv, options) {
 }
 
 module.exports = run;
-if (require.main === module) {
-  run(process.argv).catch(err => {
-    console.error(err);
-    process.exit(1);
-  });
-}
+
+main(module, run, process.argv);

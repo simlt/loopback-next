@@ -15,6 +15,7 @@ const {
   writeJsonSync,
   isDryRun,
   stringifyJson,
+  main,
 } = require('./script-util');
 
 /**
@@ -76,9 +77,4 @@ async function updatePackageDeps(options) {
 
 module.exports = updatePackageDeps;
 
-if (require.main === module) {
-  updatePackageDeps().catch(err => {
-    console.error(err);
-    process.exit(1);
-  });
-}
+main(module, updatePackageDeps);

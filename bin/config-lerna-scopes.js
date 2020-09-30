@@ -9,7 +9,7 @@
  */
 'use strict';
 
-const {getPackages} = require('./script-util');
+const {getPackages, main} = require('./script-util');
 
 module.exports = {
   rules: {
@@ -37,12 +37,4 @@ function getShortName(pkg) {
   return name.startsWith('@') ? name.split('/')[1] : name;
 }
 
-if (require.main === module) {
-  getPackageNames().then(
-    names => console.log('Scopes: %s', names),
-    err => {
-      console.error(err);
-      process.exit(1);
-    },
-  );
-}
+main(module, getPackageNames);

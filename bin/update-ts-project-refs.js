@@ -24,6 +24,7 @@ const {
   writeJsonSync,
   cloneJson,
   isJsonEqual,
+  main,
 } = require('./script-util');
 
 const TSCONFIG = 'tsconfig.json';
@@ -149,9 +150,4 @@ async function updateTsReferences(options) {
 
 module.exports = updateTsReferences;
 
-if (require.main === module) {
-  updateTsReferences().catch(err => {
-    console.error(err);
-    process.exit(1);
-  });
-}
+main(module, updateTsReferences);

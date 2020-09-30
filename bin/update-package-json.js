@@ -22,6 +22,7 @@ const {
   isJsonEqual,
   writeJsonSync,
   printJson,
+  main,
 } = require('./script-util');
 
 /**
@@ -80,9 +81,4 @@ function getCopyrightOwner(pkg) {
 
 module.exports = updatePackageJsonFiles;
 
-if (require.main === module) {
-  updatePackageJsonFiles().catch(err => {
-    console.error(err.message);
-    process.exit(1);
-  });
-}
+main(module, updatePackageJsonFiles);
